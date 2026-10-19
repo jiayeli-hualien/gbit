@@ -653,7 +653,8 @@ static int cpu_do_instruction(struct gb_state *s)
         A = mmu_read(s, IMM16);
         s->pc += 2;
     } else if (M(op, 0xfb, 0xff)) { /* EI */
-        s->interrupts_master_enabled = 1;
+        /* EI takes effect after the following instruction. The tester executes
+         * one instruction at a time, so IME must remain unchanged here. */
     } else if (M(op, 0xfe, 0xff)) { /* CP imm8 */
         u8 n = IMM8;
         ZF = A == n;
