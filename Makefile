@@ -58,3 +58,11 @@ clean:
 
 -include $(BDIR)/*.d
 -include $(BDIR)/lib/*.d
+
+.PHONY: test
+test: $(BDIR)/regressions
+	$(BDIR)/regressions stop
+	$(BDIR)/regressions failure-status > $(BDIR)/failure-status.log
+
+$(BDIR)/regressions: tests/regressions.c $(LIBNAME) | $(BDIR)
+	$(CC) $(CFLAGS) -o $@ $< -L. -lgbit -Wl,-rpath,'$$ORIGIN/..'

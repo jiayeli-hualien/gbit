@@ -281,7 +281,7 @@ static int test_instructions(size_t num_instructions,
     if (flags->print_tested_instruction)
         printf("\n");
 
-    return 0;
+    return num_instructions_passed != num_instructions_tested;
 }
 
 static bool is_valid_op(u8 op)
@@ -339,18 +339,21 @@ static int test_all_instructions(void)
     size_t num_instructions = sizeof(instructions) / sizeof(instructions[0]);
     size_t num_cb_instructions = sizeof(cb_instructions) / sizeof(cb_instructions[0]);
 
-    if (test_instructions(num_instructions, instructions, ""))
+    int failure = test_instructions(num_instructions, instructions, "");
+    if (failure && !flags->keep_going_on_mismatch)
         return 1;
 
-    if (flags->enable_cb_instruction_testing)
-        if (test_instructions(num_cb_instructions, cb_instructions, "CB "))
+    if (flags->enable_cb_instruction_testing) {
+        failure |= test_instructions(num_cb_instructions, cb_instructions, "CB ");
+        if (failure && !flags->keep_going_on_mismatch)
             return 1;
+    }
 
     print_coverage(tested_op, is_valid_op, "");
     if (flags->enable_cb_instruction_testing)
         print_coverage(tested_op_cb, is_valid_op_cb, "CB ");
 
-    return 0;
+    return failure;
 }
 
 

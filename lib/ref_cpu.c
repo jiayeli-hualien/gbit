@@ -372,6 +372,10 @@ static int cpu_do_instruction(struct gb_state *s)
         F = (A & 1) ? FLAG_C : 0;
         A = (A >> 1) | ((A & 1) << 7);
     } else if (M(op, 0x10, 0xff)) { /* STOP */
+        /* Normal STOP is two bytes; the second byte is ignored. This
+         * single-instruction model has no joypad/interrupt entry races.
+         * https://gbdev.io/pandocs/Reducing_Power_Consumption.html */
+        s->pc++;
         s->halted = 1;
     } else if (M(op, 0x12, 0xff)) { /* LD (DE), A */
         mmu_write(s, DE, A);
